@@ -1,64 +1,102 @@
-const BIN_ID = "67e06cfd8561e97a50f17582";
 const API_KEY = "$2a$10$hD20YlzI1bEJMqaE.tDxd.imtTczoppQFIcla6eeIb41HJAHJZ1wK";
-const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const BIN_ID = "67e06cfd8561e97a50f17582";
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-async function fetchUsers() {
-    let response = await fetch(API_URL, {
-        method: "GET",
+async function getUsers() {
+    const response = await fetch(BIN_URL, {
         headers: { "X-Master-Key": API_KEY }
     });
-    let data = await response.json();
-    return data.record.users || [];
+    const data = await response.json();
+    return data.record.users;
 }
 
-async function signUp(username, password, nickname, bio) {
-    let users = await fetchUsers();
-    if (users.some(user => user.username === username)) {
+async function updateUsers(users) {
+    await fetch(BIN_URL, {
+        method: "PUT",
+        headers: {
+            "X-Master-Key": API_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ users })
+    });
+}
+
+// SIGN UP FUNCTION
+async function register(event) {
+    event.preventDefault();
+    let username = document.getElementById("signup-username").value;
+    let password = document.getElementById("signup-password").value;
+
+    let users = await getUsers();
+    if (users.find(u => u.username === username)) {
         alert("Username already exists!");
         return;
     }
 
-    users.push({ username, password, nickname, bio });
+    users.push({ username, password, bio: "", picture: "" });
+    await updateUsers(users);
 
-    await fetch(API_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-        body: JSON.stringify({ users })
-    });
-
-    localStorage.setItem("loggedInUser", JSON.stringify({ username }));
+    localStorage.setItem("loggedInUser", username);
     window.location.href = "index.html";
 }
 
-function checkUser() {
-    let user = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (user) {
-        document.getElementById("username-display").textContent = user.username;
-        document.getElementById("auth-section").style.display = "none";
-        document.getElementById("user-info").style.display = "block";
+// LOGIN FUNCTION
+async function login(event) {
+    event.preventDefault();
+    let username = document.getElementById("login-username").value;
+    let password = document.getElementById("login-password").value;
+
+    let users = await getUsers();
+    let user = users.find(u => u.username === username && u.password === password);
+
+    if (!user) {
+        alert("Invalid credentials!");
+        return;
+    }
+
+    localStorage.setItem("loggedInUser", username);
+    window.location.href = "index.html";
+}
+
+// LOAD PROFILE ON INDEX
+async function loadIndex() {
+    let username = localStorage.getItem("loggedInUser");
+    if (username) {
+        document.getElementById("signup-btn").style.display = "none";
+        document.getElementById("login-btn").style.display = "none";
+        document.getElementById("user-menu").style.display = "block";
+        document.getElementById("username-display").innerText = username;
     }
 }
 
-function toggleMenu() {
-    document.getElementById("dropdown-menu").style.display = "block";
+// EDIT PROFILE
+async function loadProfile() {
+    let username = localStorage.getItem("loggedInUser");
+    if (!username) window.location.href = "login.html";
+
+    let users = await getUsers();
+    let user = users.find(u => u.username === username);
+    document.getElementById("edit-username").value = user.username;
+    document.getElementById("bio").value = user.bio || "";
 }
 
-async function deleteAccount() {
-    let users = await fetchUsers();
-    let user = JSON.parse(localStorage.getItem("loggedInUser"));
-    users = users.filter(u => u.username !== user.username);
+async function saveProfile(event) {
+    event.preventDefault();
+    let username = localStorage.getItem("loggedInUser");
+    let bio = document.getElementById("bio").value;
 
-    await fetch(API_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-        body: JSON.stringify({ users })
-    });
+    let users = await getUsers();
+    let user = users.find(u => u.username === username);
+    user.bio = bio;
 
-    localStorage.removeItem("loggedInUser");
+    await updateUsers(users);
+    alert("Profile updated!");
     window.location.href = "index.html";
 }
 
-function logout() {
+async function logout() {
     localStorage.removeItem("loggedInUser");
-    window.location.href = "index.html";
+    window.location.href = "login.html";
 }
+
+document.addEventListener("DOMContentLoaded", loadIndex);
