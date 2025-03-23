@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Planner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="checkUser()">
+
+    <div class="container">
+        <h1>Welcome to Study Planner</h1>
+        <p>Plan your studies efficiently and stay organized!</p>
+
+        <div id="auth-section">
+            <a href="signup.html" class="btn">Sign Up</a>
+            <a href="login.html" class="btn">Login</a>
+        </div>
+
+        <div id="user-info" style="display: none;">
+            <button class="user-btn" onclick="toggleMenu()">
+                <span id="username-display"></span> ▼
+            </button>
+            <div id="dropdown-menu">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="edit.html">Edit Profile</a>
+                <button onclick="deleteAccount()">Delete Account</button>
+                <button onclick="logout()">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
