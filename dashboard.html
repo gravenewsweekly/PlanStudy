@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadDashboard()">
+
+    <div class="container">
+        <h1>Dashboard</h1>
+        <h2>Welcome, <span id="user-name"></span>!</h2>
+
+        <h3>Add Study Plan</h3>
+        <input type="text" id="subject" placeholder="Subject">
+        <input type="text" id="time" placeholder="Time (e.g., 10 AM - 12 PM)">
+        <button onclick="addStudyPlan()">Add Plan</button>
+
+        <h3>Your Study Plans:</h3>
+        <ul id="study-plans"></ul>
+
+        <button onclick="logout()" class="btn logout">Log Out</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
